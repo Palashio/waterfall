@@ -22,7 +22,7 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
     """
     analysis = {
         "layout_type": "content",
-        "slide_layout_index": 1,  # Default: Title and Content
+        "slide_layout_index": 1,  
         "visual_elements": [],
         "reasoning": "",
         "enhancements": [],
@@ -42,14 +42,13 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
         analysis["enhancements"].append("side_by_side_layout")
         analysis["content_structure"] = extract_comparison_structure(content)
     
-    # 2. Check for numerical data and charts
     number_patterns = [
-        r'\d+%',  # Percentages
-        r'\d+\s*(percent|%)',  # Percentages with text
-        r'increased by \d+',  # Increases
-        r'decreased by \d+',  # Decreases
-        r'growth of \d+',  # Growth
-        r'\d+\s*(million|billion|thousand)',  # Large numbers
+        r'\d+%',  
+        r'\d+\s*(percent|%)',  
+        r'increased by \d+',
+        r'decreased by \d+',  
+        r'growth of \d+',  
+        r'\d+\s*(million|billion|thousand)',  
     ]
     
     numbers_found = []
@@ -59,26 +58,24 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
     
     if len(numbers_found) >= 2:
         analysis["layout_type"] = "chart"
-        analysis["slide_layout_index"] = 1  # Title and Content with chart
+        analysis["slide_layout_index"] = 1  
         analysis["reasoning"] = f"Found {len(numbers_found)} numerical data points - adding chart visualization"
         analysis["enhancements"].append("data_visualization")
         analysis["visual_elements"].append("chart")
         analysis["content_structure"] = extract_chart_data(content)
     
-    # 3. Check for process/step content
     process_keywords = ["step", "process", "flow", "first", "then", "next", "finally", "stage", "phase"]
     step_patterns = [r'\d+\.', r'step \d+', r'phase \d+']
     
     if any(keyword in content_lower for keyword in process_keywords) or \
        any(re.search(pattern, content_lower) for pattern in step_patterns):
         analysis["layout_type"] = "process"
-        analysis["slide_layout_index"] = 1  # Title and Content with SmartArt
+        analysis["slide_layout_index"] = 1  
         analysis["reasoning"] = "Contains process or step-by-step content - using SmartArt process flow"
         analysis["enhancements"].append("smartart_flow")
         analysis["visual_elements"].append("smartart")
         analysis["content_structure"] = extract_process_structure(content)
     
-    # 4. Check for section headers
     section_keywords = ["overview", "introduction", "summary", "conclusion", "key points", "main points"]
     if any(keyword in title_lower for keyword in section_keywords):
         analysis["layout_type"] = "section"
@@ -86,9 +83,7 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
         analysis["reasoning"] = "Section header detected - using section layout"
         analysis["enhancements"].append("section_header")
     
-    # 5. Check for two-column content
     if content.count('\n') >= 4 and len(content.split('\n')) >= 6:
-        # Check if content can be naturally split into two columns
         lines = content.split('\n')
         mid_point = len(lines) // 2
         left_content = '\n'.join(lines[:mid_point])
@@ -104,14 +99,12 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
                 "right_column": right_content
             }
     
-    # 6. Check for title-only content (impact slides)
     if len(content.strip()) < 50 and any(word in content_lower for word in ["key", "main", "important", "critical"]):
         analysis["layout_type"] = "title_only"
         analysis["slide_layout_index"] = 5  # Title Only layout
         analysis["reasoning"] = "Short, impactful content - using title-only layout for emphasis"
         analysis["enhancements"].append("title_only_emphasis")
     
-    # 7. Check for content with caption
     if any(word in content_lower for word in ["diagram", "graph", "chart", "image", "picture", "visual", "illustration"]):
         analysis["layout_type"] = "content_with_caption"
         analysis["slide_layout_index"] = 7  # Content with Caption layout
@@ -119,7 +112,6 @@ def analyze_content_for_optimal_layout(content: str, slide_title: str = "") -> d
         analysis["enhancements"].append("caption_layout")
         analysis["visual_elements"].append("image_placeholder")
     
-    # 8. Check for blank layout (for custom graphics)
     if len(content.strip()) < 20 and any(word in title_lower for word in ["diagram", "flowchart", "timeline", "mind map"]):
         analysis["layout_type"] = "blank"
         analysis["slide_layout_index"] = 6  # Blank layout
@@ -136,7 +128,6 @@ def extract_comparison_structure(content: str) -> dict:
         "comparison_type": "general"
     }
     
-    # Split by comparison keywords
     comparison_keywords = ["vs", "versus", "compared to", "compared with"]
     
     for keyword in comparison_keywords:
@@ -166,7 +157,6 @@ def extract_chart_data(content: str) -> dict:
         "values": []
     }
     
-    # Extract percentages
     percent_pattern = r'(\d+)%'
     percentages = re.findall(percent_pattern, content)
     if percentages:
@@ -174,7 +164,6 @@ def extract_chart_data(content: str) -> dict:
         data["values"] = [int(p) for p in percentages]
         data["categories"] = [f"Category {i+1}" for i in range(len(percentages))]
     
-    # Extract growth/increase/decrease patterns
     growth_pattern = r'(?:increased|grew|growth)\s+(?:by\s+)?(\d+)'
     growth_matches = re.findall(growth_pattern, content.lower())
     if growth_matches:
@@ -192,7 +181,6 @@ def extract_process_structure(content: str) -> dict:
         "total_steps": 0
     }
     
-    # Extract numbered steps
     step_pattern = r'(\d+)\.\s*(.+)'
     steps = re.findall(step_pattern, content)
     
@@ -200,7 +188,6 @@ def extract_process_structure(content: str) -> dict:
         process_data["steps"] = [step[1].strip() for step in steps]
         process_data["total_steps"] = len(steps)
     else:
-        # Extract bullet points as steps
         points = extract_bullet_points(content)
         process_data["steps"] = points
         process_data["total_steps"] = len(points)
@@ -216,7 +203,6 @@ def extract_bullet_points(text: str) -> List[str]:
         line = line.strip()
         if line and (line.startswith(('•', '-', '*', '1.', '2.', '3.')) or
                     any(word in line.lower() for word in ['important', 'key', 'main', 'primary'])):
-            # Clean up the bullet point
             clean_point = re.sub(r'^[•\-*\d\.\s]+', '', line)
             if clean_point:
                 points.append(clean_point)
@@ -239,10 +225,8 @@ def create_enhanced_powerpoint(
     Returns:
         Path to the created presentation file
     """
-    # Create a new presentation
     prs = Presentation()
     
-    # Add title slide
     title_slide_layout = prs.slide_layouts[0]
     title_slide = prs.slides.add_slide(title_slide_layout)
     
@@ -278,7 +262,6 @@ def create_slide_with_smart_layout(prs, title: str, content: str, layout_analysi
     content_structure = layout_analysis.get("content_structure", {})
     
     try:
-        # Get the appropriate layout
         layout = prs.slide_layouts[slide_layout_index]
         slide = prs.slides.add_slide(layout)
         
@@ -330,7 +313,6 @@ def create_comparison_content(slide, content_structure: dict):
 
 def create_chart_content(slide, content: str, content_structure: dict):
     """Create content with chart visualization"""
-    # Add chart if data is available
     chart_data = content_structure.get("data_points", [])
     if chart_data:
         try:
@@ -374,12 +356,10 @@ def create_process_content(slide, content: str, content_structure: dict):
                 height=Inches(5)
             )
             
-            # Add steps to SmartArt
-            for i, step in enumerate(steps[:5]):  # Limit to 5 steps
+            for i, step in enumerate(steps[:5]):
                 if i < len(smartart.shapes):
                     smartart.shapes[i].text = step
         except:
-            # Fallback to bullet points
             if len(slide.placeholders) >= 2:
                 content_placeholder = slide.placeholders[1]
                 add_bullet_points_to_placeholder(content_placeholder, steps)

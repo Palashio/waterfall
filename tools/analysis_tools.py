@@ -25,7 +25,6 @@ def analyze_prompt(
         "complexity": "medium"
     }
     
-    # Extract topic (usually the main subject)
     topic_patterns = [
         r"about\s+(.+)",
         r"on\s+(.+)",

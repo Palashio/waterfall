@@ -3,10 +3,8 @@ from typing import Literal
 from deepagents import create_deep_agent, SubAgent
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Import our custom tools
 from tools.powerpoint_tools import create_powerpoint
 from tools.research_tools import research_topic
 from tools.analysis_tools import analyze_prompt
@@ -15,11 +13,9 @@ from tools.enhanced_powerpoint_tools import (
     save_enhanced_plan
 )
 
-# Import organized components
 from subagents import all_subagents
 from prompts import prompts
 
-# Tool definitions for the main agent
 def create_presentation(
     title: str,
     slides_data: list,
@@ -51,7 +47,6 @@ def save_enhanced_plan_tool(slides_data: list, filename: str = "enhanced_slide_p
     """Save enhanced slide plan to file"""
     return save_enhanced_plan(slides_data, filename)
 
-# Process sub-agents to inject actual prompts
 def process_subagents():
     """Process sub-agents to replace prompt references with actual prompts"""
     processed_subagents = []
@@ -82,7 +77,6 @@ powerpoint_agent = create_deep_agent(
     subagents=process_subagents()
 ).with_config({"recursion_limit": 100})
 
-# Convenience function for easy usage
 def create_powerpoint_presentation(prompt: str, filename: str = "enhanced_presentation.pptx"):
     """
     Create a PowerPoint presentation based on a user prompt
@@ -94,16 +88,13 @@ def create_powerpoint_presentation(prompt: str, filename: str = "enhanced_presen
     Returns:
         Path to the generated presentation file
     """
-    # Use the agent directly like in the research example
     result = powerpoint_agent.stream({"messages": [{"role": "user", "content": f"Create a presentation: {prompt}"}]})
-    
+
     for chunk in result:
         print(chunk)
 
     return result
 
-# Main execution when run directly
 if __name__ == "__main__":
-    # Example prompt
-    prompt = "Create a 5-slide presentation about renewable energy trends in 2024"
+    prompt = "Create a 5-slide presentation about how to use AI"
     result = create_powerpoint_presentation(prompt)
